@@ -1,0 +1,113 @@
+<template>
+  <div>
+      <h2>人数统计</h2>
+      <div id="chartone" class="one"></div>
+  </div>
+</template>
+
+<script setup>
+import {inject,onMounted,reactive} from "vue"
+import link from "../api/Link.js"
+import url from "../api/url.js"
+
+// let data=reactive({})
+let xdata=reactive([])
+let ydata=reactive([])
+
+
+let $echarts=inject("echarts")
+onMounted(()=>{
+
+    let myChart=$echarts.init(document.getElementById("chartone"))
+
+
+    link(url.chartDataOne).then((ok)=>{
+       let {data}=ok;
+       console.log(data)
+
+       xdata=data.map(v=>v.title)
+       ydata=data.map(v=>v.num)
+
+       console.log("x",xdata)
+       console.log("y",ydata)
+
+        myChart.setOption({
+        xAxis:{
+            // 设置轴为数值轴
+            type:"value",
+            axisLine:{
+                lineStyle:{
+                    color:"#fff"
+                }
+            }
+        },
+        yAxis:{
+            // 设置轴为类目轴
+            type:"category",
+            // 楼号数据
+            data:xdata,
+            axisLine:{
+                lineStyle:{
+                    color:"#fff"
+                }
+            }
+        },
+        grid:{
+            // grid区域位置
+            top:"3%",
+            left:"1%",
+            bottom:"3%",
+            right:"6%",
+            // grid区域是否包含坐标轴的刻度标签
+            containLabel:true
+        },
+        series:[
+            {
+                // 设置为柱状图
+                type:"bar",
+                // 人数数据
+                data:ydata,
+                itemStyle:{
+                    normal:{
+                        // 柱形的圆角
+                        barBorderRadius:[0,20,20,0],
+                        // 实现渐变色
+                        color:new $echarts.graphic.LinearGradient(0,0,1,0,[
+                            {
+                                offset:0,
+                                color:"#005eaa"
+                            },
+                            {
+                                offset:0.5,
+                                color:"#339ca8"
+                            },
+                            {
+                                offset:1,
+                                color:"#cda819"
+                            },
+                        ])
+                    }
+                }
+            }
+        ]
+    })
+    })
+})
+
+
+</script>
+
+<style lang="scss" scoped>
+    h2{
+        height: 0.6rem;
+        color: #fff;
+        line-height: 0.6rem;
+        text-align: center;
+        font-size:0.25rem;
+    }
+    // 容纳echarts的DOM容器必须设置宽高
+    .one{
+        height: 4.5rem;
+        
+    }
+</style>
